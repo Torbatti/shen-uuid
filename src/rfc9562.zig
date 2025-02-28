@@ -38,3 +38,18 @@ pub const v1 = struct {
 
     }
 };
+
+pub const v4 = struct {
+    bytes: [16]u8 = [_]u8{0} ** 16,
+
+    pub fn init() void {
+        var uuid = v4{};
+        std.crypto.random.bytes(&uuid.bytes);
+
+        // Version 4
+        uuid.bytes[6] = (uuid.bytes[6] & 0b0100) | 0x40;
+        // Variant 2
+        uuid.bytes[8] = (uuid.bytes[8] & 0b10) | 0x80;
+        return uuid;
+    }
+};

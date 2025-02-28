@@ -1,11 +1,15 @@
 const std = @import("std");
 const assert = std.debug.assert;
 
-pub const nil_uuid: u128 = 0x00000000000000000000000000000000;
-pub const max_uuid: u128 = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
-
+pub const nil: u128 = 0x00000000000000000000000000000000;
+pub const max: u128 = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
 comptime {
-    _ = nil_uuid;
-    _ = max_uuid;
-    assert(nil_uuid == ~max_uuid);
+    _ = nil;
+    _ = max;
+    assert(nil == ~max);
+}
+
+pub const rfc9562 = @import("rfc9562.zig");
+comptime {
+    _ = rfc9562.Version;
 }

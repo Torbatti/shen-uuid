@@ -2,19 +2,6 @@ const std = @import("std");
 const root = @import("root");
 const assert = std.debug.assert;
 
-pub const Version = enum(u4) {
-    unused = 0,
-    time_based_greg = 1,
-    dce_security = 2,
-    name_based_md5 = 3,
-    random = 4,
-    name_based_sha1 = 5,
-    time_based_greg_reordered = 6,
-    time_based_epoch = 7,
-    custom = 8,
-    future,
-};
-
 pub const UUID = struct {
     bytes: [16]u8,
 
@@ -32,6 +19,50 @@ pub const UUID = struct {
     pub const new_v6 = UUID_V6.new;
     pub const new_v7 = UUID_V7.new;
 };
+
+pub const Version = enum(u4) {
+    unused = 0,
+    time_based_greg = 1,
+    dce_security = 2,
+    name_based_md5 = 3,
+    random = 4,
+    name_based_sha1 = 5,
+    time_based_greg_reordered = 6,
+    time_based_epoch = 7,
+    custom = 8,
+    future,
+};
+
+fn version(uuid: UUID) Version {
+    switch (uuid.bytes[7] & 0xF0) {
+        0x00 => return Version.unused,
+        0x10 => return Version.time_based_greg,
+        0x20 => return Version.dce_security,
+        0x30 => return Version.name_based_md5,
+        0x40 => return Version.random,
+        0x50 => return Version.name_based_sha1,
+        0x60 => return Version.time_based_greg_reordered,
+        0x70 => return Version.time_based_epoch,
+        0x80 => return Version.custom,
+        else => return Version.future,
+    }
+}
+
+fn versionFromU128(uuid: u128) void {
+    const num = @as(u4, @truncate(uuid >> 75));
+    switch (num) {
+        0x0 => return Version.unused,
+        0x1 => return Version.time_based_greg,
+        0x2 => return Version.dce_security,
+        0x3 => return Version.name_based_md5,
+        0x4 => return Version.random,
+        0x5 => return Version.name_based_sha1,
+        0x6 => return Version.time_based_greg_reordered,
+        0x7 => return Version.time_based_epoch,
+        0x8 => return Version.custom,
+        else => return Version.future,
+    }
+}
 
 // time_low 32 | time_mid 16 | version 4 | time_high 12 | variant 2 | clock_seq 14 |  node 48
 const UUID_V1 = struct {

@@ -80,6 +80,25 @@ const UUID_V1 = struct {
     }
 };
 
+// md5_high 48 | version 4 | md5_mid 12 | variant 2 | md5_low 62
+const UUID_V3 = struct {
+    fn new(uuid: *UUID, stream: []const u8) void {
+        var md5_hash = std.crypto.hash.Md5.init(.{});
+        md5_hash.update(stream);
+
+        var out_bytes: [20]u8 = undefined;
+        md5_hash.final(&out_bytes);
+
+        @memcpy(uuid.*.bytes[0..15], out_bytes[0..15]);
+
+        // Version 3
+        uuid.*.bytes[6] = (uuid.bytes[6] & 0x0f) | 0x30;
+
+        // Variant RFC9562
+        uuid.*.bytes[8] = (uuid.bytes[8] & 0x3f) | 0x80;
+    }
+};
+
 // time_low 32 | time_mid 16 | version 4 | time_high 12 | variant 2 | clock_seq 14 |  node 48
 const UUID_V4 = struct {
     fn new(uuid: *UUID) void {

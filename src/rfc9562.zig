@@ -238,3 +238,19 @@ const UUID_V7 = struct {
         uuid.bytes[8] = (uuid.bytes[8] & 0x3f) | 0x80;
     }
 };
+
+// custom_a 48 | version 4 | custom_b 12 | variant 2 | custom_c 62
+const UUID_V8 = struct {
+
+    // TODO: notify that 6 bits are resereved for variant and versions
+    fn new(uuid: *UUID, stream: [16]u8) void {
+        // timestamp
+        @memcpy(uuid.*.bytes[0..15], stream[0..15]);
+
+        // Version 8
+        uuid.bytes[6] = (uuid.bytes[6] & 0x0f) | 0x80;
+
+        // Variant RFC9562
+        uuid.bytes[8] = (uuid.bytes[8] & 0x3f) | 0x80;
+    }
+};

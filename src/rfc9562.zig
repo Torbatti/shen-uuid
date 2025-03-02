@@ -50,18 +50,18 @@ const UUID_V1 = struct {
         const time = @as(u60, @intCast(@as(i60, @truncate(std.time.milliTimestamp()))));
 
         // time_low
-        uuid.bytes[0] = @as(u8, @truncate(time));
-        uuid.bytes[1] = @as(u8, @truncate(time >> 8));
-        uuid.bytes[2] = @as(u8, @truncate(time >> 16));
-        uuid.bytes[3] = @as(u8, @truncate(time >> 24));
+        uuid.bytes[0] = @as(u8, @truncate(time >> 24));
+        uuid.bytes[1] = @as(u8, @truncate(time >> 16));
+        uuid.bytes[2] = @as(u8, @truncate(time >> 8));
+        uuid.bytes[3] = @as(u8, @truncate(time));
 
         // time_mid
-        uuid.bytes[4] = @as(u8, @truncate(time >> 32));
-        uuid.bytes[5] = @as(u8, @truncate(time >> 40));
+        uuid.bytes[4] = @as(u8, @truncate(time >> 40));
+        uuid.bytes[5] = @as(u8, @truncate(time >> 32));
 
         // time_high
-        uuid.bytes[6] = @as(u8, @truncate(time >> 48));
-        uuid.bytes[7] = @as(u8, @truncate(time >> 56));
+        uuid.bytes[6] = @as(u8, @truncate(time >> 56));
+        uuid.bytes[7] = @as(u8, @truncate(time >> 48));
 
         // clock_seq
         std.crypto.random.bytes(&uuid.bytes[8..9]); // occupies clock sequence bytes

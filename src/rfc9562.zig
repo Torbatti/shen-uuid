@@ -40,6 +40,7 @@ pub const UUID = struct {
     pub const new_v3 = UUID_V3.new;
     pub const new_v4 = UUID_V4.new;
     pub const new_v5 = UUID_V5.new;
+    pub const new_v6 = UUID_V6.new;
 };
 
 // time_low 32 | time_mid 16 | version 4 | time_high 12 | variant 2 | clock_seq 14 |  node 48

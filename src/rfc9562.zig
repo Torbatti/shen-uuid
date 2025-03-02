@@ -50,6 +50,7 @@ pub const v1 = struct {
         std.crypto.random.bytes(&uuid.bytes[8..9]); // occupies clock sequence bytes
 
         // TODO: MACADRESS MISSING
+        std.crypto.random.bytes(&uuid.bytes[10..15]); // TODO : REPLACE WITH MACADDRESS
 
         // Version 1
         uuid.bytes[6] = (uuid.bytes[6] & 0x0f) | 0x10;

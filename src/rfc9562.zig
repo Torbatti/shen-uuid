@@ -51,7 +51,10 @@ pub const v1 = struct {
 
         // TODO: MACADRESS MISSING
 
+        // Version 1
         uuid.bytes[6] = (uuid.bytes[6] & 0x0f) | 0x10;
+
+        // Variant RFC9562
         uuid.bytes[8] = (uuid.bytes[8] & 0x3f) | 0x80;
 
         std.debug.print("{0b} ", .{time});
@@ -71,8 +74,9 @@ pub const v4 = struct {
         // Version 4
         uuid.bytes[6] = (uuid.bytes[6] & 0x0f) | 0x40;
 
-        // Variant 2
+        // Variant RFC9562
         uuid.bytes[8] = (uuid.bytes[8] & 0x3f) | 0x80;
+
         return uuid;
     }
 };

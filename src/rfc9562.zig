@@ -36,7 +36,7 @@ pub const UUID = struct {
 const UUID_V1 = struct {
     fn new(uuid: *UUID, node_id: u64) void {
         // 60-bit starting timestamp
-        const time = @as(u60, @intCast(@as(i60, @truncate(std.time.milliTimestamp()))));
+        const time = @as(u64, @intCast(std.time.milliTimestamp()));
 
         // time_low
         uuid.bytes[0] = @as(u8, @truncate(time >> 24));
@@ -127,7 +127,7 @@ const UUID_V5 = struct {
 const UUID_V6 = struct {
     fn new(uuid: *UUID, node_id: u64) void {
         // 60-bit starting timestamp
-        const time = @as(u60, @intCast(@as(i60, @truncate(std.time.milliTimestamp()))));
+        const time = @as(u64, @intCast(std.time.milliTimestamp()));
 
         // time_high
         uuid.bytes[0] = @as(u8, @truncate(time >> 56));

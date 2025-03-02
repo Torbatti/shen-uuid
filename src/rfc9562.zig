@@ -15,6 +15,14 @@ pub const Version = enum(u4) {
     future,
 };
 
+pub const nil: u128 = 0x00000000000000000000000000000000;
+pub const max: u128 = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+comptime {
+    _ = nil;
+    _ = max;
+    assert(nil == ~max);
+}
+
 pub const v1 = struct {
     bytes: [16]u8 = [_]u8{0} ** 16,
 

@@ -132,3 +132,43 @@ const UUID_V5 = struct {
         uuid.*.bytes[8] = (uuid.bytes[8] & 0x3f) | 0x80;
     }
 };
+
+// time_high 32 | time_mid 16 | version 4 | time_low 12 | variant 2 | clock_seq 14 |  node 48
+const UUID_V6 = struct {
+    fn new(uuid: *UUID, node_id: u64) void {
+        // 60-bit starting timestamp
+        const time = @as(u60, @intCast(@as(i60, @truncate(std.time.milliTimestamp()))));
+
+        // time_high
+        uuid.bytes[0] = @as(u8, @truncate(time >> 56));
+        uuid.bytes[1] = @as(u8, @truncate(time >> 48));
+        uuid.bytes[2] = @as(u8, @truncate(time >> 40));
+        uuid.bytes[3] = @as(u8, @truncate(time >> 32));
+
+        // time_mid
+        uuid.bytes[4] = @as(u8, @truncate(time >> 24));
+        uuid.bytes[5] = @as(u8, @truncate(time >> 16));
+
+        // time_low
+        uuid.bytes[6] = @as(u8, @truncate(time >> 8));
+        uuid.bytes[7] = @as(u8, @truncate(time));
+
+        // clock_seq
+        std.crypto.random.bytes(&uuid.bytes[8..9]); // occupies clock sequence bytes
+
+        // On systems utilizing a 64-bit MAC address,
+        // the least significant, rightmost 48 bits MAY be used
+        uuid.bytes[10] = @as(u8, @truncate(node_id));
+        uuid.bytes[11] = @as(u8, @truncate(node_id >> 8));
+        uuid.bytes[12] = @as(u8, @truncate(node_id >> 16));
+        uuid.bytes[13] = @as(u8, @truncate(node_id >> 24));
+        uuid.bytes[14] = @as(u8, @truncate(node_id >> 32));
+        uuid.bytes[15] = @as(u8, @truncate(node_id >> 40));
+
+        // Version 6
+        uuid.bytes[6] = (uuid.bytes[6] & 0x0f) | 0x10;
+
+        // Variant RFC9562
+        uuid.bytes[8] = (uuid.bytes[8] & 0x3f) | 0x80;
+    }
+};

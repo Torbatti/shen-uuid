@@ -108,12 +108,12 @@ const UUID_V1 = struct {
 
         // On systems utilizing a 64-bit MAC address,
         // the least significant, rightmost 48 bits MAY be used
-        uuid.bytes[10] = @as(u8, @truncate(node_id));
-        uuid.bytes[11] = @as(u8, @truncate(node_id >> 8));
-        uuid.bytes[12] = @as(u8, @truncate(node_id >> 16));
-        uuid.bytes[13] = @as(u8, @truncate(node_id >> 24));
-        uuid.bytes[14] = @as(u8, @truncate(node_id >> 32));
-        uuid.bytes[15] = @as(u8, @truncate(node_id >> 40));
+        uuid.bytes[10] = @as(u8, @truncate(node_id >> 40));
+        uuid.bytes[11] = @as(u8, @truncate(node_id >> 32));
+        uuid.bytes[12] = @as(u8, @truncate(node_id >> 24));
+        uuid.bytes[13] = @as(u8, @truncate(node_id >> 16));
+        uuid.bytes[14] = @as(u8, @truncate(node_id >> 8));
+        uuid.bytes[15] = @as(u8, @truncate(node_id));
 
         // Version 1
         uuid.bytes[6] = (uuid.bytes[6] & 0x0f) | 0x10;
@@ -199,12 +199,12 @@ const UUID_V6 = struct {
 
         // On systems utilizing a 64-bit MAC address,
         // the least significant, rightmost 48 bits MAY be used
-        uuid.bytes[10] = @as(u8, @truncate(node_id));
-        uuid.bytes[11] = @as(u8, @truncate(node_id >> 8));
-        uuid.bytes[12] = @as(u8, @truncate(node_id >> 16));
-        uuid.bytes[13] = @as(u8, @truncate(node_id >> 24));
-        uuid.bytes[14] = @as(u8, @truncate(node_id >> 32));
-        uuid.bytes[15] = @as(u8, @truncate(node_id >> 40));
+        uuid.bytes[10] = @as(u8, @truncate(node_id >> 40));
+        uuid.bytes[11] = @as(u8, @truncate(node_id >> 32));
+        uuid.bytes[12] = @as(u8, @truncate(node_id >> 24));
+        uuid.bytes[13] = @as(u8, @truncate(node_id >> 16));
+        uuid.bytes[14] = @as(u8, @truncate(node_id >> 8));
+        uuid.bytes[15] = @as(u8, @truncate(node_id));
 
         // Version 6
         uuid.bytes[6] = (uuid.bytes[6] & 0x0f) | 0x10;

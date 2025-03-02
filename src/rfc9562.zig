@@ -18,6 +18,10 @@ pub const UUID = struct {
     pub const new_v5 = UUID_V5.new;
     pub const new_v6 = UUID_V6.new;
     pub const new_v7 = UUID_V7.new;
+
+    pub const new_v8 = UUID_V8.new;
+    pub const new_v8_sha256 = UUID_V8.new_sha256;
+    pub const new_v8_sha512 = UUID_V8.new_sha512;
 };
 
 pub const Version = enum(u4) {
@@ -244,8 +248,39 @@ const UUID_V8 = struct {
 
     // TODO: notify that 6 bits are resereved for variant and versions
     fn new(uuid: *UUID, stream: [16]u8) void {
-        // timestamp
         @memcpy(uuid.*.bytes[0..15], stream[0..15]);
+
+        // Version 8
+        uuid.bytes[6] = (uuid.bytes[6] & 0x0f) | 0x80;
+
+        // Variant RFC9562
+        uuid.bytes[8] = (uuid.bytes[8] & 0x3f) | 0x80;
+    }
+
+    fn new_sha256(uuid: *UUID, stream: []const u8) void {
+        var sha1_hash = std.crypto.hash.sha2.Sha256.init(.{});
+        sha1_hash.update(stream);
+
+        var out_bytes: [20]u8 = undefined;
+        sha1_hash.final(&out_bytes);
+
+        @memcpy(uuid.*.bytes[0..15], out_bytes[0..15]);
+
+        // Version 8
+        uuid.bytes[6] = (uuid.bytes[6] & 0x0f) | 0x80;
+
+        // Variant RFC9562
+        uuid.bytes[8] = (uuid.bytes[8] & 0x3f) | 0x80;
+    }
+
+    fn new_sha512(uuid: *UUID, stream: []const u8) void {
+        var sha1_hash = std.crypto.hash.sha2.Sha512.init(.{});
+        sha1_hash.update(stream);
+
+        var out_bytes: [20]u8 = undefined;
+        sha1_hash.final(&out_bytes);
+
+        @memcpy(uuid.*.bytes[0..15], out_bytes[0..15]);
 
         // Version 8
         uuid.bytes[6] = (uuid.bytes[6] & 0x0f) | 0x80;

@@ -15,17 +15,6 @@ pub const Version = enum(u4) {
     future,
 };
 
-const nil: u128 = 0x00000000000000000000000000000000;
-const max: u128 = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
-test "nil and max" {
-    _ = nil;
-    _ = max;
-    assert(nil == ~max);
-
-    _ = UUID.nil;
-    _ = UUID.max;
-}
-
 pub const UUID = struct {
     bytes: [16]u8,
 

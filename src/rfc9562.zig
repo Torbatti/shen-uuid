@@ -181,7 +181,7 @@ const UUID_V7 = struct {
         // clock_seq
         std.crypto.random.bytes(uuid.bytes[6..15]); // occupies clock sequence bytes
 
-        // Version 6
+        // Version 7
         uuid.bytes[6] = (uuid.bytes[6] & 0x0f) | 0x10;
 
         // Variant RFC9562

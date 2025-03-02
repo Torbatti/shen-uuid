@@ -37,6 +37,7 @@ pub const UUID = struct {
     }
 
     pub const new_v4 = UUID_V4.new;
+    pub const new_v5 = UUID_V5.new;
 };
 
 const v1 = struct {
@@ -91,7 +92,24 @@ const UUID_V4 = struct {
 
         // Variant RFC9562
         uuid.*.bytes[8] = (uuid.bytes[8] & 0x3f) | 0x80;
+    }
+};
 
-        return uuid;
+// sha1_high 48 | version 4 | sha1_mid 12 | variant 2 | sha1_low 62
+const UUID_V5 = struct {
+    fn new(uuid: *UUID, stream: []const u8) void {
+        var sha1 = std.crypto.hash.Sha1.init(.{});
+        sha1.update(stream);
+
+        var sha_out: [20]u8 = undefined;
+        sha1.final(&sha_out);
+
+        @memcpy(uuid.*.bytes[0..15], sha_out[0..15]);
+
+        // Version 5
+        uuid.*.bytes[6] = (uuid.bytes[6] & 0x0f) | 0x50;
+
+        // Variant RFC9562
+        uuid.*.bytes[8] = (uuid.bytes[8] & 0x3f) | 0x80;
     }
 };

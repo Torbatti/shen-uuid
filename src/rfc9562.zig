@@ -36,16 +36,13 @@ pub const UUID = struct {
         uuid.*.bytes = [_]u8{0x00} ** 16;
     }
 
+    pub const new_v1 = UUID_V1.new;
     pub const new_v4 = UUID_V4.new;
     pub const new_v5 = UUID_V5.new;
 };
 
-const v1 = struct {
-    bytes: [16]u8,
-
-    fn init() v1 {
-        var uuid = v1{};
-
+const UUID_V1 = struct {
+    fn new(uuid: *UUID, node_id: u64) void {
         // 60-bit starting timestamp
         const time = @as(u60, @intCast(@as(i60, @truncate(std.time.milliTimestamp()))));
 
@@ -66,26 +63,27 @@ const v1 = struct {
         // clock_seq
         std.crypto.random.bytes(&uuid.bytes[8..9]); // occupies clock sequence bytes
 
-        // TODO: MACADRESS MISSING
-        std.crypto.random.bytes(&uuid.bytes[10..15]); // TODO : REPLACE WITH MACADDRESS
+        // On systems utilizing a 64-bit MAC address,
+        // the least significant, rightmost 48 bits MAY be used
+        uuid.bytes[10] = @as(u8, @truncate(node_id));
+        uuid.bytes[11] = @as(u8, @truncate(node_id >> 8));
+        uuid.bytes[12] = @as(u8, @truncate(node_id >> 16));
+        uuid.bytes[13] = @as(u8, @truncate(node_id >> 24));
+        uuid.bytes[14] = @as(u8, @truncate(node_id >> 32));
+        uuid.bytes[15] = @as(u8, @truncate(node_id >> 40));
 
         // Version 1
         uuid.bytes[6] = (uuid.bytes[6] & 0x0f) | 0x10;
 
         // Variant RFC9562
         uuid.bytes[8] = (uuid.bytes[8] & 0x3f) | 0x80;
-
-        std.debug.print("{0b} ", .{time});
-        // std.debug.print("{any} ", .{bytes});
-
-        return uuid;
     }
 };
 
 // time_low 32 | time_mid 16 | version 4 | time_high 12 | variant 2 | clock_seq 14 |  node 48
 const UUID_V4 = struct {
     fn new(uuid: *UUID) void {
-        std.crypto.random.bytes(uuid.bytes);
+        std.crypto.random.bytes(uuid.*.bytes);
 
         // Version 4
         uuid.*.bytes[6] = (uuid.bytes[6] & 0x0f) | 0x40;

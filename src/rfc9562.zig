@@ -33,7 +33,7 @@ pub const Version = enum(u4) {
     future,
 };
 
-fn version(uuid: UUID) Version {
+pub fn getVersion(uuid: UUID) Version {
     switch (uuid.bytes[7] & 0xF0) {
         0x00 => return Version.unused,
         0x10 => return Version.time_based_greg,
@@ -48,19 +48,38 @@ fn version(uuid: UUID) Version {
     }
 }
 
-fn versionFromU128(uuid: u128) void {
-    const num = @as(u4, @truncate(uuid >> 75));
-    switch (num) {
-        0x0 => return Version.unused,
-        0x1 => return Version.time_based_greg,
-        0x2 => return Version.dce_security,
-        0x3 => return Version.name_based_md5,
-        0x4 => return Version.random,
-        0x5 => return Version.name_based_sha1,
-        0x6 => return Version.time_based_greg_reordered,
-        0x7 => return Version.time_based_epoch,
-        0x8 => return Version.custom,
-        else => return Version.future,
+pub fn setVersion(uuid: *UUID, ver: Version) void {
+    switch (ver) {
+        Version.unused => {
+            uuid.*.bytes[8] = (uuid.*.bytes[8] & 0x3f) | 0x00;
+        },
+        Version.time_based_greg => {
+            uuid.*.bytes[8] = (uuid.*.bytes[8] & 0x3f) | 0x10;
+        },
+        Version.dce_security => {
+            uuid.*.bytes[8] = (uuid.*.bytes[8] & 0x3f) | 0x20;
+        },
+        Version.name_based_md5 => {
+            uuid.*.bytes[8] = (uuid.*.bytes[8] & 0x3f) | 0x30;
+        },
+        Version.random => {
+            uuid.*.bytes[8] = (uuid.*.bytes[8] & 0x3f) | 0x40;
+        },
+        Version.name_based_sha1 => {
+            uuid.*.bytes[8] = (uuid.*.bytes[8] & 0x3f) | 0x50;
+        },
+        Version.time_based_greg_reordered => {
+            uuid.*.bytes[8] = (uuid.*.bytes[8] & 0x3f) | 0x60;
+        },
+        Version.time_based_epoch => {
+            uuid.*.bytes[8] = (uuid.*.bytes[8] & 0x3f) | 0x70;
+        },
+        Version.custom => {
+            uuid.*.bytes[8] = (uuid.*.bytes[8] & 0x3f) | 0x80;
+        },
+        Version.future => {
+            uuid.*.bytes[8] = (uuid.*.bytes[8] & 0x3f) | 0x90;
+        },
     }
 }
 

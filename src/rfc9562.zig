@@ -86,7 +86,7 @@ pub fn setVersion(uuid: *UUID, ver: Version) void {
 // time_low 32 | time_mid 16 | version 4 | time_high 12 | variant 2 | clock_seq 14 |  node 48
 const UUID_V1 = struct {
     fn new(uuid: *UUID, node_id: u64) void {
-        // 60-bit starting timestamp
+        // timestamp
         const time = @as(u64, @intCast(std.time.milliTimestamp()));
 
         // time_low
@@ -177,7 +177,7 @@ const UUID_V5 = struct {
 // time_high 32 | time_mid 16 | version 4 | time_low 12 | variant 2 | clock_seq 14 |  node 48
 const UUID_V6 = struct {
     fn new(uuid: *UUID, node_id: u64) void {
-        // 60-bit starting timestamp
+        // timestamp
         const time = @as(u64, @intCast(std.time.milliTimestamp()));
 
         // time_high
@@ -217,7 +217,7 @@ const UUID_V6 = struct {
 // unix_ts_ms 48 | version 4 | rand_a 12 | variant 2 | rand_b 62
 const UUID_V7 = struct {
     fn new(uuid: *UUID) void {
-        // 60-bit starting timestamp
+        // timestamp
         const time = @as(u64, @intCast(std.time.timestamp()));
 
         // time_high

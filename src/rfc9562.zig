@@ -42,6 +42,7 @@ pub const UUID = struct {
     pub const new_v5 = UUID_V5.new;
 };
 
+// time_low 32 | time_mid 16 | version 4 | time_high 12 | variant 2 | clock_seq 14 |  node 48
 const UUID_V1 = struct {
     fn new(uuid: *UUID, node_id: u64) void {
         // 60-bit starting timestamp
@@ -81,7 +82,7 @@ const UUID_V1 = struct {
     }
 };
 
-// md5_high 48 | version 4 | md5_mid 12 | variant 2 | md5_low 62
+// random_a 48 | version 4 | random_b 12 | variant 2 | random_c 62
 const UUID_V3 = struct {
     fn new(uuid: *UUID, stream: []const u8) void {
         var md5_hash = std.crypto.hash.Md5.init(.{});
@@ -100,7 +101,7 @@ const UUID_V3 = struct {
     }
 };
 
-// time_low 32 | time_mid 16 | version 4 | time_high 12 | variant 2 | clock_seq 14 |  node 48
+// md5_high 48 | version 4 | md5_mid 12 | variant 2 | md5_low 62
 const UUID_V4 = struct {
     fn new(uuid: *UUID) void {
         std.crypto.random.bytes(uuid.*.bytes);

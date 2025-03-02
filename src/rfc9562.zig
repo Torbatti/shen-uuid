@@ -1,5 +1,6 @@
 const std = @import("std");
 const root = @import("root");
+const assert = std.debug.assert;
 
 pub const Version = enum(u4) {
     unused = 0,
@@ -17,39 +18,53 @@ pub const Version = enum(u4) {
 pub const v1 = struct {
     bytes: [16]u8 = [_]u8{0} ** 16,
 
-    pub fn init() void {
+    pub fn init() v1 {
         var uuid = v1{};
-        std.crypto.random.bytes(&uuid.bytes);
-
-        // var bytes: [16]u8 = [_]u8{0} ** 16;
-        // const bytes: [16]u8 = [_]u8{0} ** 16;
 
         // 60-bit starting timestamp
-        const time = @as(u60, @intCast(@as(i60, @truncate(std.time.timestamp() >> 4))));
+        const time = @as(u60, @intCast(@as(i60, @truncate(std.time.milliTimestamp()))));
 
-        // const time = std.time.milliTimestamp();
-        // const time = @as(u60, @intCast(@truncate(std.time.timestamp() >> 4)));
-        // bytes[1] = @as(u8, @truncate(@as(u60, time << 52 >> 52)));
-        // bytes[2] = @as(u8, @truncate(@as(u60, time << 44 >> 52)));
-        // bytes[3] = @as(u8, @truncate(@as(u60, time << 36 >> 52)));
+        // time_low
+        uuid.bytes[0] = @as(u8, @truncate(time));
+        uuid.bytes[1] = @as(u8, @truncate(time >> 8));
+        uuid.bytes[2] = @as(u8, @truncate(time >> 16));
+        uuid.bytes[3] = @as(u8, @truncate(time >> 24));
+
+        // time_mid
+        uuid.bytes[4] = @as(u8, @truncate(time >> 32));
+        uuid.bytes[5] = @as(u8, @truncate(time >> 40));
+
+        // time_high
+        uuid.bytes[6] = @as(u8, @truncate(time >> 48));
+        uuid.bytes[7] = @as(u8, @truncate(time >> 56));
+
+        // clock_seq
+        std.crypto.random.bytes(&uuid.bytes[8..9]); // occupies clock sequence bytes
+
+        // TODO: MACADRESS MISSING
+
+        uuid.bytes[6] = (uuid.bytes[6] & 0x0f) | 0x10;
+        uuid.bytes[8] = (uuid.bytes[8] & 0x3f) | 0x80;
 
         std.debug.print("{0b} ", .{time});
         // std.debug.print("{any} ", .{bytes});
 
+        return uuid;
     }
 };
 
 pub const v4 = struct {
     bytes: [16]u8 = [_]u8{0} ** 16,
 
-    pub fn init() void {
+    pub fn init() v4 {
         var uuid = v4{};
         std.crypto.random.bytes(&uuid.bytes);
 
         // Version 4
-        uuid.bytes[6] = (uuid.bytes[6] & 0b0100) | 0x40;
+        uuid.bytes[6] = (uuid.bytes[6] & 0x0f) | 0x40;
+
         // Variant 2
-        uuid.bytes[8] = (uuid.bytes[8] & 0b10) | 0x80;
+        uuid.bytes[8] = (uuid.bytes[8] & 0x3f) | 0x80;
         return uuid;
     }
 };

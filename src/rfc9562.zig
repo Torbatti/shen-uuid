@@ -37,6 +37,7 @@ pub const UUID = struct {
     }
 
     pub const new_v1 = UUID_V1.new;
+    pub const new_v3 = UUID_V3.new;
     pub const new_v4 = UUID_V4.new;
     pub const new_v5 = UUID_V5.new;
 };

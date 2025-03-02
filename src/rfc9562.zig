@@ -16,8 +16,8 @@ pub const Version = enum(u4) {
 };
 
 pub const nil: u128 = 0x00000000000000000000000000000000;
-pub const max: u128 = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
-comptime {
+pub const max: u126 = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+test "nil and max" {
     _ = nil;
     _ = max;
     assert(nil == ~max);

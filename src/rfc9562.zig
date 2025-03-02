@@ -178,7 +178,7 @@ const UUID_V7 = struct {
         uuid.bytes[4] = @as(u8, @truncate(time >> 8));
         uuid.bytes[5] = @as(u8, @truncate(time));
 
-        // clock_seq
+        // rand_a and rand_b
         std.crypto.random.bytes(uuid.bytes[6..15]); // occupies clock sequence bytes
 
         // Version 7

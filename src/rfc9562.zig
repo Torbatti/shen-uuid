@@ -32,7 +32,7 @@ pub const Version = enum(u4) {
     random = 4,
     name_based_sha1 = 5,
     time_based_greg_reordered = 6,
-    time_based_epoch = 7,
+    time_based_unix = 7,
     custom = 8,
     future,
 };
@@ -46,7 +46,7 @@ pub fn getVersion(uuid: UUID) Version {
         0x40 => return Version.random,
         0x50 => return Version.name_based_sha1,
         0x60 => return Version.time_based_greg_reordered,
-        0x70 => return Version.time_based_epoch,
+        0x70 => return Version.time_based_unix,
         0x80 => return Version.custom,
         else => return Version.future,
     }
@@ -75,7 +75,7 @@ pub fn setVersion(uuid: *UUID, ver: Version) void {
         Version.time_based_greg_reordered => {
             uuid.*.bytes[8] = (uuid.*.bytes[8] & 0x3f) | 0x60;
         },
-        Version.time_based_epoch => {
+        Version.time_based_unix => {
             uuid.*.bytes[8] = (uuid.*.bytes[8] & 0x3f) | 0x70;
         },
         Version.custom => {

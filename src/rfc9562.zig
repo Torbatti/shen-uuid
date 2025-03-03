@@ -115,6 +115,17 @@ fn uuidToU128(uuid: UUID) u128 {
     return uuid128;
 }
 
+test "uuid to u128 - nil and max" {
+    const nil = UUID.nil;
+    const max = UUID.max;
+
+    const nil_u128 = nil.toU128();
+    const max_u128 = max.toU128();
+
+    try std.testing.expect(nil_u128 == 0);
+    try std.testing.expect(max_u128 == ~nil_u128);
+}
+
 // time_low 32 | time_mid 16 | version 4 | time_high 12 | variant 2 | clock_seq 14 |  node 48
 const UUID_V1 = struct {
     fn new(uuid: *UUID, node_id: u64) void {

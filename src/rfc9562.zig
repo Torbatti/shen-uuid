@@ -222,7 +222,7 @@ const UUID_V6 = struct {
 const UUID_V7 = struct {
     fn new(uuid: *UUID) void {
         // unix timestamp
-        const time = @as(u64, @intCast(std.time.timestamp()));
+        const time = @as(u64, @intCast(std.time.milliTimestamp()));
 
         // time_high
         uuid.bytes[0] = @as(u8, @truncate(time >> 40));

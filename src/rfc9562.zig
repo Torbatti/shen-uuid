@@ -90,8 +90,8 @@ pub fn setVersion(uuid: *UUID, ver: Version) void {
 // time_low 32 | time_mid 16 | version 4 | time_high 12 | variant 2 | clock_seq 14 |  node 48
 const UUID_V1 = struct {
     fn new(uuid: *UUID, node_id: u64) void {
-        // timestamp
-        const time = @as(u64, @intCast(std.time.milliTimestamp()));
+        // greg timestamp
+        const time = @as(u64, @intCast(std.time.milliTimestamp() + ((-std.time.epoch.clr) << 10)));
 
         // time_low
         uuid.bytes[0] = @as(u8, @truncate(time >> 24));
@@ -108,7 +108,7 @@ const UUID_V1 = struct {
         uuid.bytes[7] = @as(u8, @truncate(time >> 48));
 
         // clock_seq
-        std.crypto.random.bytes(&uuid.bytes[8..9]); // occupies clock sequence bytes
+        std.crypto.random.bytes(&uuid.bytes[8..10]); // occupies clock sequence bytes
 
         // On systems utilizing a 64-bit MAC address,
         // the least significant, rightmost 48 bits MAY be used
@@ -136,7 +136,7 @@ const UUID_V3 = struct {
         var out_bytes: [20]u8 = undefined;
         md5_hash.final(&out_bytes);
 
-        @memcpy(uuid.*.bytes[0..15], out_bytes[0..15]);
+        @memcpy(uuid.*.bytes[0..], out_bytes[0..16]);
 
         // Version 3
         uuid.*.bytes[6] = (uuid.bytes[6] & 0x0f) | 0x30;
@@ -168,7 +168,7 @@ const UUID_V5 = struct {
         var out_bytes: [20]u8 = undefined;
         sha1_hash.final(&out_bytes);
 
-        @memcpy(uuid.*.bytes[0..15], out_bytes[0..15]);
+        @memcpy(uuid.*.bytes[0..], out_bytes[0..16]);
 
         // Version 5
         uuid.*.bytes[6] = (uuid.bytes[6] & 0x0f) | 0x50;
@@ -181,8 +181,8 @@ const UUID_V5 = struct {
 // time_high 32 | time_mid 16 | version 4 | time_low 12 | variant 2 | clock_seq 14 |  node 48
 const UUID_V6 = struct {
     fn new(uuid: *UUID, node_id: u64) void {
-        // timestamp
-        const time = @as(u64, @intCast(std.time.milliTimestamp()));
+        // greg timestamp
+        const time = @as(u64, @intCast(std.time.milliTimestamp() + ((-std.time.epoch.clr) << 10)));
 
         // time_high
         uuid.bytes[0] = @as(u8, @truncate(time >> 56));
@@ -199,7 +199,7 @@ const UUID_V6 = struct {
         uuid.bytes[7] = @as(u8, @truncate(time));
 
         // clock_seq
-        std.crypto.random.bytes(&uuid.bytes[8..9]); // occupies clock sequence bytes
+        std.crypto.random.bytes(uuid.bytes[8..10]); // occupies clock sequence bytes
 
         // On systems utilizing a 64-bit MAC address,
         // the least significant, rightmost 48 bits MAY be used
@@ -221,7 +221,7 @@ const UUID_V6 = struct {
 // unix_ts_ms 48 | version 4 | rand_a 12 | variant 2 | rand_b 62
 const UUID_V7 = struct {
     fn new(uuid: *UUID) void {
-        // timestamp
+        // unix timestamp
         const time = @as(u64, @intCast(std.time.timestamp()));
 
         // time_high
@@ -233,7 +233,7 @@ const UUID_V7 = struct {
         uuid.bytes[5] = @as(u8, @truncate(time));
 
         // rand_a and rand_b
-        std.crypto.random.bytes(uuid.bytes[6..15]); // occupies clock sequence bytes
+        std.crypto.random.bytes(uuid.bytes[6..16]); // occupies clock sequence bytes
 
         // Version 7
         uuid.bytes[6] = (uuid.bytes[6] & 0x0f) | 0x10;
@@ -248,7 +248,7 @@ const UUID_V8 = struct {
 
     // TODO: notify that 6 bits are resereved for variant and versions
     fn new(uuid: *UUID, stream: [16]u8) void {
-        @memcpy(uuid.*.bytes[0..15], stream[0..15]);
+        @memcpy(uuid.*.bytes[0..], stream[0..16]);
 
         // Version 8
         uuid.bytes[6] = (uuid.bytes[6] & 0x0f) | 0x80;
@@ -264,7 +264,7 @@ const UUID_V8 = struct {
         var out_bytes: [20]u8 = undefined;
         sha1_hash.final(&out_bytes);
 
-        @memcpy(uuid.*.bytes[0..15], out_bytes[0..15]);
+        @memcpy(uuid.*.bytes[0..], out_bytes[0..16]);
 
         // Version 8
         uuid.bytes[6] = (uuid.bytes[6] & 0x0f) | 0x80;
@@ -280,7 +280,7 @@ const UUID_V8 = struct {
         var out_bytes: [20]u8 = undefined;
         sha1_hash.final(&out_bytes);
 
-        @memcpy(uuid.*.bytes[0..15], out_bytes[0..15]);
+        @memcpy(uuid.*.bytes[0..], out_bytes[0..16]);
 
         // Version 8
         uuid.bytes[6] = (uuid.bytes[6] & 0x0f) | 0x80;

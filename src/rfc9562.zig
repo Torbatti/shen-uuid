@@ -8,6 +8,8 @@ pub const UUID = struct {
     pub const nil: UUID = UUID{ .bytes = [_]u8{0x00} ** 16 };
     pub const max: UUID = UUID{ .bytes = [_]u8{0xFF} ** 16 };
 
+    pub const toU128 = uuidToU128;
+
     pub fn reset(uuid: *UUID) void {
         uuid.*.bytes = [_]u8{0x00} ** 16;
     }
@@ -87,6 +89,32 @@ pub fn setVersion(uuid: *UUID, ver: Version) void {
     }
 }
 
+fn uuidToU128(uuid: UUID) u128 {
+    var uuid128: u128 = 0;
+
+    uuid128 = uuid128 | @as(u128, uuid.bytes[0]) << 8 * 0;
+    uuid128 = uuid128 | @as(u128, uuid.bytes[1]) << 8 * 1;
+    uuid128 = uuid128 | @as(u128, uuid.bytes[2]) << 8 * 2;
+    uuid128 = uuid128 | @as(u128, uuid.bytes[3]) << 8 * 3;
+
+    uuid128 = uuid128 | @as(u128, uuid.bytes[4]) << 8 * 4;
+    uuid128 = uuid128 | @as(u128, uuid.bytes[5]) << 8 * 5;
+    uuid128 = uuid128 | @as(u128, uuid.bytes[6]) << 8 * 6;
+    uuid128 = uuid128 | @as(u128, uuid.bytes[7]) << 8 * 7;
+
+    uuid128 = uuid128 | @as(u128, uuid.bytes[8]) << 8 * 8;
+    uuid128 = uuid128 | @as(u128, uuid.bytes[9]) << 8 * 9;
+    uuid128 = uuid128 | @as(u128, uuid.bytes[10]) << 8 * 10;
+    uuid128 = uuid128 | @as(u128, uuid.bytes[11]) << 8 * 11;
+
+    uuid128 = uuid128 | @as(u128, uuid.bytes[12]) << 8 * 12;
+    uuid128 = uuid128 | @as(u128, uuid.bytes[13]) << 8 * 13;
+    uuid128 = uuid128 | @as(u128, uuid.bytes[14]) << 8 * 14;
+    uuid128 = uuid128 | @as(u128, uuid.bytes[15]) << 8 * 15;
+
+    return uuid128;
+}
+
 // time_low 32 | time_mid 16 | version 4 | time_high 12 | variant 2 | clock_seq 14 |  node 48
 const UUID_V1 = struct {
     fn new(uuid: *UUID, node_id: u64) void {
@@ -149,7 +177,7 @@ const UUID_V3 = struct {
 // md5_high 48 | version 4 | md5_mid 12 | variant 2 | md5_low 62
 const UUID_V4 = struct {
     fn new(uuid: *UUID) void {
-        std.crypto.random.bytes(uuid.*.bytes);
+        std.crypto.random.bytes(&uuid.bytes);
 
         // Version 4
         uuid.*.bytes[6] = (uuid.bytes[6] & 0x0f) | 0x40;

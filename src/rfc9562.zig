@@ -14,13 +14,22 @@ pub const UUID = struct {
         uuid.*.bytes = [_]u8{0x00} ** 16;
     }
 
+    pub const init_v1 = UUID_V1.init;
+    pub const init_v3 = UUID_V3.init;
+    pub const init_v4 = UUID_V4.init;
+    pub const init_v5 = UUID_V5.init;
+    pub const init_v6 = UUID_V6.init;
+    pub const init_v7 = UUID_V7.init;
+    pub const init_v8 = UUID_V8.init;
+    pub const init_v8_sha256 = UUID_V8.init_sha256;
+    pub const init_v8_sha512 = UUID_V8.init_sha512;
+
     pub const new_v1 = UUID_V1.new;
     pub const new_v3 = UUID_V3.new;
     pub const new_v4 = UUID_V4.new;
     pub const new_v5 = UUID_V5.new;
     pub const new_v6 = UUID_V6.new;
     pub const new_v7 = UUID_V7.new;
-
     pub const new_v8 = UUID_V8.new;
     pub const new_v8_sha256 = UUID_V8.new_sha256;
     pub const new_v8_sha512 = UUID_V8.new_sha512;
@@ -128,7 +137,7 @@ test "uuid to u128 - nil and max" {
 
 // time_low 32 | time_mid 16 | version 4 | time_high 12 | variant 2 | clock_seq 14 |  node 48
 const UUID_V1 = struct {
-    fn new(uuid: *UUID, node_id: u64) void {
+    fn init(uuid: *UUID, node_id: u64) void {
         // greg timestamp
         const time = @as(u64, @intCast(std.time.milliTimestamp() + ((-std.time.epoch.clr) << 10)));
 
@@ -168,7 +177,7 @@ const UUID_V1 = struct {
 
 // random_a 48 | version 4 | random_b 12 | variant 2 | random_c 62
 const UUID_V3 = struct {
-    fn new(uuid: *UUID, stream: []const u8) void {
+    fn init(uuid: *UUID, stream: []const u8) void {
         var md5_hash = std.crypto.hash.Md5.init(.{});
         md5_hash.update(stream);
 
@@ -187,7 +196,7 @@ const UUID_V3 = struct {
 
 // md5_high 48 | version 4 | md5_mid 12 | variant 2 | md5_low 62
 const UUID_V4 = struct {
-    fn new(uuid: *UUID) void {
+    fn init(uuid: *UUID) void {
         std.crypto.random.bytes(&uuid.bytes);
 
         // Version 4
@@ -200,7 +209,7 @@ const UUID_V4 = struct {
 
 // sha1_high 48 | version 4 | sha1_mid 12 | variant 2 | sha1_low 62
 const UUID_V5 = struct {
-    fn new(uuid: *UUID, stream: []const u8) void {
+    fn init(uuid: *UUID, stream: []const u8) void {
         var sha1_hash = std.crypto.hash.Sha1.init(.{});
         sha1_hash.update(stream);
 
@@ -219,7 +228,7 @@ const UUID_V5 = struct {
 
 // time_high 32 | time_mid 16 | version 4 | time_low 12 | variant 2 | clock_seq 14 |  node 48
 const UUID_V6 = struct {
-    fn new(uuid: *UUID, node_id: u64) void {
+    fn init(uuid: *UUID, node_id: u64) void {
         // greg timestamp
         const time = @as(u64, @intCast(std.time.milliTimestamp() + ((-std.time.epoch.clr) << 10)));
 
@@ -259,7 +268,7 @@ const UUID_V6 = struct {
 
 // unix_ts_ms 48 | version 4 | rand_a 12 | variant 2 | rand_b 62
 const UUID_V7 = struct {
-    fn new(uuid: *UUID) void {
+    fn init(uuid: *UUID) void {
         // unix timestamp
         const time = @as(u64, @intCast(std.time.milliTimestamp()));
 
@@ -286,7 +295,7 @@ const UUID_V7 = struct {
 const UUID_V8 = struct {
 
     // TODO: notify that 6 bits are resereved for variant and versions
-    fn new(uuid: *UUID, stream: [16]u8) void {
+    fn init(uuid: *UUID, stream: [16]u8) void {
         @memcpy(uuid.*.bytes[0..], stream[0..16]);
 
         // Version 8
@@ -296,7 +305,7 @@ const UUID_V8 = struct {
         uuid.bytes[8] = (uuid.bytes[8] & 0x3f) | 0x80;
     }
 
-    fn new_sha256(uuid: *UUID, stream: []const u8) void {
+    fn init_sha256(uuid: *UUID, stream: []const u8) void {
         var sha1_hash = std.crypto.hash.sha2.Sha256.init(.{});
         sha1_hash.update(stream);
 
@@ -312,7 +321,7 @@ const UUID_V8 = struct {
         uuid.bytes[8] = (uuid.bytes[8] & 0x3f) | 0x80;
     }
 
-    fn new_sha512(uuid: *UUID, stream: []const u8) void {
+    fn init_sha512(uuid: *UUID, stream: []const u8) void {
         var sha1_hash = std.crypto.hash.sha2.Sha512.init(.{});
         sha1_hash.update(stream);
 

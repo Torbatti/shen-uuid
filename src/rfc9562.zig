@@ -20,9 +20,9 @@ pub const UUID = struct {
     pub const init_v5 = UUID_V5.init;
     pub const init_v6 = UUID_V6.init;
     pub const init_v7 = UUID_V7.init;
-    pub const init_v8 = UUID_V8.init;
-    pub const init_v8_sha256 = UUID_V8.init_sha256;
-    pub const init_v8_sha512 = UUID_V8.init_sha512;
+    // pub const init_v8 = UUID_V8.init;
+    // pub const init_v8_sha256 = UUID_V8.init_sha256;
+    // pub const init_v8_sha512 = UUID_V8.init_sha512;
 
     pub const new_v1 = UUID_V1.new;
     pub const new_v3 = UUID_V3.new;
@@ -30,9 +30,9 @@ pub const UUID = struct {
     pub const new_v5 = UUID_V5.new;
     pub const new_v6 = UUID_V6.new;
     pub const new_v7 = UUID_V7.new;
-    pub const new_v8 = UUID_V8.new;
-    pub const new_v8_sha256 = UUID_V8.new_sha256;
-    pub const new_v8_sha512 = UUID_V8.new_sha512;
+    // pub const new_v8 = UUID_V8.new;
+    // pub const new_v8_sha256 = UUID_V8.new_sha256;
+    // pub const new_v8_sha512 = UUID_V8.new_sha512;
 };
 
 pub const Version = enum(u4) {
@@ -156,7 +156,7 @@ const UUID_V1 = struct {
         uuid.bytes[7] = @as(u8, @truncate(time >> 48));
 
         // clock_seq
-        std.crypto.random.bytes(&uuid.bytes[8..10]); // occupies clock sequence bytes
+        std.crypto.random.bytes(uuid.bytes[8..10]); // occupies clock sequence bytes
 
         // On systems utilizing a 64-bit MAC address,
         // the least significant, rightmost 48 bits MAY be used
@@ -173,7 +173,22 @@ const UUID_V1 = struct {
         // Variant RFC9562
         uuid.bytes[8] = (uuid.bytes[8] & 0x3f) | 0x80;
     }
+    fn new(node_id: u64) UUID {
+        var uuid = UUID.nil;
+        init(&uuid, node_id);
+        return uuid;
+    }
 };
+test "RFC9562 UUID v1" {
+    const expect = std.testing.expect;
+    const rand = std.crypto.random;
+
+    const node_id = rand.int(u64);
+    const uuid_v1_1 = UUID.new_v1(node_id);
+    const uuid_v1_2 = UUID.new_v1(node_id);
+
+    try expect(uuid_v1_1.toU128() != uuid_v1_2.toU128());
+}
 
 // random_a 48 | version 4 | random_b 12 | variant 2 | random_c 62
 const UUID_V3 = struct {
@@ -181,7 +196,7 @@ const UUID_V3 = struct {
         var md5_hash = std.crypto.hash.Md5.init(.{});
         md5_hash.update(stream);
 
-        var out_bytes: [20]u8 = undefined;
+        var out_bytes: [16]u8 = undefined;
         md5_hash.final(&out_bytes);
 
         @memcpy(uuid.*.bytes[0..], out_bytes[0..16]);
@@ -192,7 +207,22 @@ const UUID_V3 = struct {
         // Variant RFC9562
         uuid.*.bytes[8] = (uuid.bytes[8] & 0x3f) | 0x80;
     }
+    fn new(stream: []const u8) UUID {
+        var uuid = UUID.nil;
+        init(&uuid, stream);
+        return uuid;
+    }
 };
+test "RFC9562 UUID v3" {
+    const expect = std.testing.expect;
+
+    const uuid_v3_1 = UUID.new_v3("DONT USE THIS!");
+    const uuid_v3_2 = UUID.new_v3("DONT USE THIS!");
+    const uuid_v3_3 = UUID.new_v3("PLEASE DONT USE THIS!");
+
+    try expect(uuid_v3_1.toU128() == uuid_v3_2.toU128());
+    try expect(uuid_v3_1.toU128() != uuid_v3_3.toU128());
+}
 
 // md5_high 48 | version 4 | md5_mid 12 | variant 2 | md5_low 62
 const UUID_V4 = struct {
@@ -205,7 +235,23 @@ const UUID_V4 = struct {
         // Variant RFC9562
         uuid.*.bytes[8] = (uuid.bytes[8] & 0x3f) | 0x80;
     }
+    fn new() UUID {
+        var uuid = UUID.nil;
+        init(&uuid);
+        return uuid;
+    }
 };
+test "RFC9562 UUID v4" {
+    const expect = std.testing.expect;
+
+    const uuid_v4_1 = UUID.new_v4();
+    const uuid_v4_2 = UUID.new_v4();
+    const uuid_v4_3 = UUID.new_v4();
+
+    try expect(uuid_v4_1.toU128() != uuid_v4_2.toU128());
+    try expect(uuid_v4_1.toU128() != uuid_v4_3.toU128());
+    try expect(uuid_v4_2.toU128() != uuid_v4_3.toU128());
+}
 
 // sha1_high 48 | version 4 | sha1_mid 12 | variant 2 | sha1_low 62
 const UUID_V5 = struct {
@@ -224,7 +270,22 @@ const UUID_V5 = struct {
         // Variant RFC9562
         uuid.*.bytes[8] = (uuid.bytes[8] & 0x3f) | 0x80;
     }
+    fn new(stream: []const u8) UUID {
+        var uuid = UUID.nil;
+        init(&uuid, stream);
+        return uuid;
+    }
 };
+test "RFC9562 UUID v5" {
+    const expect = std.testing.expect;
+
+    const uuid_v5_1 = UUID.new_v5("DONT USE THIS!");
+    const uuid_v5_2 = UUID.new_v5("DONT USE THIS!");
+    const uuid_v5_3 = UUID.new_v5("PLEASE DONT USE THIS!");
+
+    try expect(uuid_v5_1.toU128() == uuid_v5_2.toU128());
+    try expect(uuid_v5_1.toU128() != uuid_v5_3.toU128());
+}
 
 // time_high 32 | time_mid 16 | version 4 | time_low 12 | variant 2 | clock_seq 14 |  node 48
 const UUID_V6 = struct {
@@ -264,7 +325,22 @@ const UUID_V6 = struct {
         // Variant RFC9562
         uuid.bytes[8] = (uuid.bytes[8] & 0x3f) | 0x80;
     }
+    fn new(node_id: u64) UUID {
+        var uuid = UUID.nil;
+        init(&uuid, node_id);
+        return uuid;
+    }
 };
+test "RFC9562 UUID v6" {
+    const expect = std.testing.expect;
+    const rand = std.crypto.random;
+
+    const node_id = rand.int(u64);
+    const uuid_v6_1 = UUID.new_v6(node_id);
+    const uuid_v6_2 = UUID.new_v6(node_id);
+
+    try expect(uuid_v6_1.toU128() != uuid_v6_2.toU128());
+}
 
 // unix_ts_ms 48 | version 4 | rand_a 12 | variant 2 | rand_b 62
 const UUID_V7 = struct {
@@ -289,7 +365,23 @@ const UUID_V7 = struct {
         // Variant RFC9562
         uuid.bytes[8] = (uuid.bytes[8] & 0x3f) | 0x80;
     }
+    fn new() UUID {
+        var uuid = UUID.nil;
+        init(&uuid);
+        return uuid;
+    }
 };
+test "RFC9562 UUID v7" {
+    const expect = std.testing.expect;
+
+    const uuid_v7_1 = UUID.new_v7();
+    const uuid_v7_2 = UUID.new_v7();
+    const uuid_v7_3 = UUID.new_v7();
+
+    try expect(uuid_v7_1.toU128() != uuid_v7_2.toU128());
+    try expect(uuid_v7_1.toU128() != uuid_v7_3.toU128());
+    try expect(uuid_v7_2.toU128() != uuid_v7_3.toU128());
+}
 
 // custom_a 48 | version 4 | custom_b 12 | variant 2 | custom_c 62
 const UUID_V8 = struct {
